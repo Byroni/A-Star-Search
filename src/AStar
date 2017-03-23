@@ -1,0 +1,143 @@
+import java.util.*;
+
+/**
+ * Created by byron on 3/22/17.
+ */
+public class Search {
+
+    /* PSEUDO
+
+    generate 15x15 board with 10% blocked
+
+    initialize open list    >
+    initialize closed list  >
+    put the starting node on the open list with f = 0
+
+    while open list is not empty
+        find the node with the least f on the open list, call it 'q'
+        pop 'q' off open list
+        generate q's 8 successors and set their parents to 'q'
+
+        for each successor
+            if successor is the goal, stop the search
+            successor.g = q.g + distance between successor and q
+            successor.h = distance from goal to successor
+            successor.f = successor.g + successor.h
+
+            if node with the same position as successor is in the open list
+                && has a lower f than successor, skip this successor
+            if node with the same position as successor is in the closed list
+                $$ has a lower f than successor, skip this successor
+            otherwise, add the node to the open list
+        end
+        push q to closed list
+    end
+
+     */
+
+    private static List<Node> open = new ArrayList<>();
+    private static List<Node> closed = new ArrayList<>();
+    private static Node goalNode;
+    private static int nodeCost = 10;
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+//        System.out.print("Start X: ");
+//        int sx= sc.nextInt();
+//        System.out.print("\nStart Y: ");
+//        int sy = sc.nextInt();
+//        System.out.print("\nEnd X: ");
+//        int ex = sc.nextInt();
+//        System.out.print("\nEnd Y: ");
+//        int ey = sc.nextInt();
+
+//        //  Set goalNode
+//        goalNode = new Node(ey, ex, 1);
+//
+//        //  Add starting node to open list
+//        open.add(new Node(sy, sx, 1));
+
+        goalNode = new Node(8, 5, 1);
+        open.add(new Node(1, 12, 1));
+        open.get(0).setG(0);
+        open.get(0).setH(0);
+        open.get(0).setF();
+
+        while (!open.isEmpty()) {
+            checkNext();
+        }
+    }
+
+    public static void checkNext() {
+        Node bestNode = null;
+        int min = 1000;
+
+        for (Node node : open) {
+            bestNode = node.getF() <= min ? node : bestNode;
+        }
+        Node nextNode = open.get(open.indexOf(bestNode));
+        open.remove(open.indexOf(bestNode));
+
+        expandNode(nextNode);
+    }
+
+    public static void expandNode(Node node) {
+        List<Node> children = new ArrayList<>();
+
+        for (int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+                if (i == 1 && j == 1)
+                    System.out.println("Skip");
+                else if (node.getRow()-1+i < 0 || node.getRow() > 14 || node.getCol() < 0 || node.getCol() > 14) {
+                    System.out.println("Skip");
+                } else
+                    children.add(new Node(node.getRow()-1+i, node.getCol()-1+j, 1));
+            }
+        }
+        for (Node child : children) {
+            //  Check is goal node
+            if (child.getCol() == goalNode.getCol() && child.getRow() == goalNode.getRow()) {
+                System.out.println("Found goal node!");
+                for (Node item : closed) {
+                    System.out.println(item.getCol() + ", " + item.getRow());
+                }
+                System.exit(0);
+            } else {
+                child.setG(node.getG() + nodeCost);
+                //  Manhattan distance calculation
+                child.setH(Math.abs(child.getCol() - goalNode.getCol()) + Math.abs(child.getRow() - goalNode.getRow()));
+                child.setF();
+                child.setParent(node);
+            }
+
+            if (checkLists(child)) {
+                System.out.println("Doing this");
+                open.add(child);
+            }
+        }
+
+        closed.add(node);
+    }
+
+    public static boolean checkLists(Node child) {
+        //  check if child is in the open or closed lists
+        //  if node has lower f, return true, else false
+
+        //  check open list
+        for (Node node : open) {
+            if (child.getCol() == node.getCol() && child.getRow() == node.getRow()) {
+                if (child.getF() > node.getF())
+                    return false;
+            }
+        }
+        //  check closed list
+        for (Node node : closed) {
+            if (child.getCol() == node.getCol() && child.getRow() == node.getRow()) {
+                if (child.getF() > node.getF())
+                    return false;
+            }
+        }
+        return true;
+    }
+}
