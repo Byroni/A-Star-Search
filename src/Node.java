@@ -4,8 +4,8 @@ public class Node {
 	private Node parent;
    
 	public Node(int r, int c, int t){
-		row = r;
-		col = c;
+		row = r;	//	y
+		col = c;	//	x
 		type = t;
 		parent = null;
 		//type 0 is traverseable, 1 is not
@@ -44,7 +44,8 @@ public class Node {
 	public int getCol(){
 		return col;
 	}
-	
+	public int getType() { return type; }
+
 	public boolean equals(Object in){
 		//typecast to Node
 		Node n = (Node) in;
